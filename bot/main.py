@@ -24,6 +24,8 @@ async def polling_loop(bot: Bot):
 
 
 async def run_bot():
+    from test_api import test_tourvisor_api
+    await test_tourvisor_api()
     await init_db()
     logger.info("✅ БД инициализирована")
 
