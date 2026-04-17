@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, text
 from bot.config import settings
 from bot.database.models import (
     Base, User, TourRequest, HotTourSubscription,
@@ -13,6 +13,29 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Добавляем новые колонки если их нет (миграция)
+        await migrate_columns(conn)
+
+
+async def migrate_columns(conn):
+    """Добавляем новые колонки в существующие таблицы"""
+    migrations = [
+        # User — новые поля персонализации
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS preferred_destinations VARCHAR(500)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS preferred_budget VARCHAR(50)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS preferred_rest_type VARCHAR(50)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS adults_default INTEGER DEFAULT 2",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS children_default INTEGER DEFAULT 0",
+        # TourRequest — новое поле
+        "ALTER TABLE tour_requests ADD COLUMN IF NOT EXISTS rest_type VARCHAR(50)",
+        # HotTourSubscription — новое поле
+        "ALTER TABLE hot_tour_subscriptions ADD COLUMN IF NOT EXISTS last_notified_at TIMESTAMP",
+    ]
+    for sql in migrations:
+        try:
+            await conn.execute(text(sql))
+        except Exception:
+            pass  # Колонка уже есть или SQLite не поддерживает IF NOT EXISTS
 
 
 # ── Users ──────────────────────────────────────────────────────────────────
@@ -92,7 +115,6 @@ async def save_search_history(session: AsyncSession, telegram_id: int, data: dic
     )
     session.add(history)
 
-    # Оставляем только последние 10 поисков
     old = await session.execute(
         select(SearchHistory)
         .where(SearchHistory.telegram_id == telegram_id)
