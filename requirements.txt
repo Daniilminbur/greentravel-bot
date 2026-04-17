@@ -1,0 +1,11 @@
+aiogram==3.27.0
+aiohttp
+sqlalchemy
+aiosqlite
+asyncpg
+pydantic-settings
+httpx
+fastapi
+uvicorn
+jinja2
+python-multipart
