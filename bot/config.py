@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     WEBHOOK_HOST: str = ""           # https://your-app.railway.app
     WEBHOOK_PATH: str = "/webhook/tourvisor"
 
+    # OpenAI
+    OPENAI_API_KEY: str = ""
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

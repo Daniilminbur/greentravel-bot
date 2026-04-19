@@ -20,7 +20,10 @@ def main_menu_kb() -> ReplyKeyboardMarkup:
         KeyboardButton(text="📢 Наш канал"),
         KeyboardButton(text="💬 Связь с менеджером"),
     )
-    builder.row(KeyboardButton(text="📞 Контакты"))
+    builder.row(
+        KeyboardButton(text="🤖 Подобрать с ИИ"),
+        KeyboardButton(text="📞 Контакты"),
+    )
     return builder.as_markup(resize_keyboard=True)
 
 

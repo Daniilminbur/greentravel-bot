@@ -7,7 +7,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from bot.config import settings
 from bot.database.crud import init_db
-from bot.handlers import start, tour_search, hot_tours, reviews, favorites, history
+from bot.handlers import start, tour_search, hot_tours, reviews, favorites, history, ai_chat
 from webhook.server import set_bot, poll_tourvisor_orders
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -24,8 +24,6 @@ async def polling_loop(bot: Bot):
 
 
 async def run_bot():
-    from test_api import test_tourvisor_api
-    await test_tourvisor_api()
     await init_db()
     logger.info("✅ БД инициализирована")
 
@@ -38,6 +36,7 @@ async def run_bot():
     dp.include_router(reviews.router)
     dp.include_router(favorites.router)
     dp.include_router(history.router)
+    dp.include_router(ai_chat.router)
 
     set_bot(bot)
     asyncio.create_task(polling_loop(bot))
